@@ -28,28 +28,38 @@ def forward_backward_prop(X, labels, params, dimensions):
 
     ### Unpack network parameters (do not modify)
     ofs = 0
-    Dx, H, Dy = (dimensions[0], dimensions[1], dimensions[2])
+    Dx, H, Dy = (dimensions[0], dimensions[1], dimensions[2])  # 10, 5, 10
 
-    W1 = np.reshape(params[ofs:ofs+ Dx * H], (Dx, H))
+    W1 = np.reshape(params[ofs:ofs + Dx * H], (Dx, H))  # 10, 5
     ofs += Dx * H
-    b1 = np.reshape(params[ofs:ofs + H], (1, H))
+    b1 = np.reshape(params[ofs:ofs + H], (1, H))  # 1, 5
     ofs += H
-    W2 = np.reshape(params[ofs:ofs + H * Dy], (H, Dy))
+    W2 = np.reshape(params[ofs:ofs + H * Dy], (H, Dy))  # 5, 10
     ofs += H * Dy
-    b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
+    b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))  # 1, 10
 
     # Note: compute cost based on `sum` not `mean`.
     ### YOUR CODE HERE: forward propagation
-    raise NotImplementedError
+    z2 = X.dot(W1) + b1  # (20, 5) - 20 is the number if training examples
+    a2 = sigmoid(z2)  # (20, 5)
+    z3 = a2.dot(W2) + b2  # (20, 10)
+    a3 = softmax(z3)  # (20, 10)
+    cost = -np.sum(labels * np.log(a3))
     ### END YOUR CODE
 
     ### YOUR CODE HERE: backward propagation
-    raise NotImplementedError
+    delta3 = a3 - labels  # 20, 10
+    gradb2 = np.sum(delta3, 0, keepdims=True)  # summing over training examples (1,  10)
+    gradW2 = np.dot(a2.T, delta3)
+
+    delta2 = sigmoid_grad(a2) * np.dot(delta3, W2.T)
+    gradb1 = np.sum(delta2, 0, keepdims=True)
+    gradW1 = np.dot(X.T, delta2)
     ### END YOUR CODE
 
     ### Stack gradients (do not modify)
     grad = np.concatenate((gradW1.flatten(), gradb1.flatten(),
-        gradW2.flatten(), gradb2.flatten()))
+                           gradW2.flatten(), gradb2.flatten()))
 
     return cost, grad
 
