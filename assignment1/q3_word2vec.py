@@ -15,7 +15,7 @@ def normalizeRows(x):
     """
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+    x = x / np.linalg.norm(x, axis=1, keepdims=True)
     ### END YOUR CODE
 
     return x
@@ -58,9 +58,21 @@ def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
     """
 
     ### YOUR CODE HERE
-    raise NotImplementedError
-    ### END YOUR CODE
 
+    # output word probabilities
+    yhat = softmax(np.dot(outputVectors, predicted))  # a column vector yhat_k
+
+    # cost function np.sum(y_i * log(yhat_i))
+    cost = -np.log(yhat[target])  # this happens when you multiply with one-hot
+
+    # gradient with respect to output word vectors (u_k, u_o assignment 1, 3b)
+    yhat[target] -= 1
+    grad = np.outer(yhat, predicted)
+
+    # gradient with respect to the input/centre word vector (v_c, assignment 1, 3a)
+    gradPred = np.dot(outputVectors.T, yhat) # the dot product takes care of the sum
+
+    ### END YOUR CODE
     return cost, gradPred, grad
 
 
@@ -96,7 +108,29 @@ def negSamplingCostAndGradient(predicted, target, outputVectors, dataset,
     indices.extend(getNegativeSamples(target, dataset, K))
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+
+    # np.dot(u_k.T, v_c) similarity between output/context (u_k) and input/centre (v_c)
+    costVector = sigmoid(np.dot(outputVectors[indices, ], predicted))
+
+    # the net sampling cost function (index 0 corresponds to prediction, u_o)
+    # similarity between v_c and prediction reduces the cost, whereas similarity with
+    # negative examples increases the cost
+    cost = -np.log(costVector[0]) - np.sum(np.log(1 - costVector[1:]))
+
+    # gradient with respect to centre word vector (v_c, see assignment 1, 3c)
+    gradPred = outputVectors[indices[0], ] * (costVector[0] - 1) + \
+               np.dot(outputVectors[indices[1::], ].T,  costVector[1:])  # dot product takes care of the sum
+
+    # gradient with respect to output word vectors (u_k, u_o, again assignment 1, 3c)
+    grad = np.zeros_like(outputVectors)
+    for i, idx in enumerate(indices):
+        grad[idx, ] += costVector[i]*predicted
+    grad[target, ] -= predicted
+
+    # dimensionality checks
+    assert (grad.shape == outputVectors.shape)
+    assert (gradPred.shape == predicted.shape)
+
     ### END YOUR CODE
 
     return cost, gradPred, grad
@@ -131,7 +165,15 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     gradOut = np.zeros(outputVectors.shape)
 
     ### YOUR CODE HERE
-    raise NotImplementedError
+    vhat = inputVectors[tokens[currentWord]]
+
+    for cw in contextWords:
+        target = tokens[cw]
+        cost_, gradPred_, grad_ = word2vecCostAndGradient(vhat, target, outputVectors, dataset)
+        cost += cost_
+        gradOut += grad_
+        gradIn[tokens[currentWord]] += gradPred_
+
     ### END YOUR CODE
 
     return cost, gradIn, gradOut
@@ -154,8 +196,8 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     gradIn = np.zeros(inputVectors.shape)
     gradOut = np.zeros(outputVectors.shape)
 
-    ### YOUR CODE HERE
-    raise NotImplementedError
+    ## YOUR CODE HERE
+    # raise NotImplementedError
     ### END YOUR CODE
 
     return cost, gradIn, gradOut

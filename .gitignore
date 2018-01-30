@@ -1,0 +1,19 @@
+# The virtual environment #
+###########################
+*/.env/
+*/.env/**
+
+# OS generated files #
+######################
+**/.DS_Store
+**/.DS_Store?
+
+# datasets #
+############
+assignment1/utils/datasets
+
+# pyCharm files #
+#################
+*/.idea/**
+*/.idea/
+.idea/**
