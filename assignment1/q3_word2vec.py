@@ -24,7 +24,7 @@ def normalizeRows(x):
 def test_normalize_rows():
     print "Testing normalizeRows..."
     x = normalizeRows(np.array([[3.0,4.0],[1, 2]]))
-    print x
+    # print x
     ans = np.array([[0.6,0.8],[0.4472136,0.89442719]])
     assert np.allclose(x, ans, rtol=1e-05, atol=1e-06)
     print ""
@@ -70,7 +70,7 @@ def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
     grad = np.outer(yhat, predicted)
 
     # gradient with respect to the input/centre word vector (v_c, assignment 1, 3a)
-    gradPred = np.dot(outputVectors.T, yhat) # the dot product takes care of the sum
+    gradPred = np.dot(outputVectors.T, yhat)  # the dot product takes care of the sum
 
     ### END YOUR CODE
     return cost, gradPred, grad
@@ -174,6 +174,9 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
         gradOut += grad_
         gradIn[tokens[currentWord]] += gradPred_
 
+    assert (gradIn.shape == inputVectors.shape)
+    assert (gradOut.shape == outputVectors.shape)
+
     ### END YOUR CODE
 
     return cost, gradIn, gradOut
@@ -197,7 +200,22 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     gradOut = np.zeros(outputVectors.shape)
 
     ## YOUR CODE HERE
-    # raise NotImplementedError
+    context_indices = [tokens[word] for word in contextWords]
+    vhat = np.sum(
+        inputVectors[context_indices, ],
+        axis=0)  # (3, ) the combined bag of words as a sum of all context vectors
+
+    target = tokens[currentWord]  # this is what we want to predict, an integer
+    cost, gradPred, grad = word2vecCostAndGradient(vhat, target, outputVectors, dataset)
+    # gradPred is a (3, ) which is the derivative with respect to vhat, input word vector for the bag of words
+    # grad is a (5, 3) matrix, where each row is a derivative with respect to output word vectors
+    gradOut = grad
+    for ci in context_indices:
+        gradIn[ci, ] += gradPred  # see ex 3d)
+        # IMPORTANT! This += here takes care of repetitions, when the same word occurs twice, it adds to the grad
+
+    assert(gradIn.shape == inputVectors.shape)
+    assert(gradOut.shape == outputVectors.shape)
     ### END YOUR CODE
 
     return cost, gradIn, gradOut

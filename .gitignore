@@ -11,6 +11,7 @@
 # datasets #
 ############
 assignment1/utils/datasets
+assignment1/*.npy
 
 # pyCharm files #
 #################
@@ -24,3 +25,5 @@ assignment1-solution.pdf
 assignment2-solution.pdf
 assignment3-solution.pdf
 cs224n-midterm-2018-solution.pdf
+
+*.pyc
