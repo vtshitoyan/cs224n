@@ -11,7 +11,7 @@
 # datasets #
 ############
 assignment1/utils/datasets
-assignment1/*.npy
+assignment1/**/*.npy
 
 # pyCharm files #
 #################
