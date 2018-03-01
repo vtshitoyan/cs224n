@@ -31,8 +31,8 @@ def softmax(x):
     if len(x.shape) > 1:
         # Matrix
         ### YOUR CODE HERE
-        x = np.exp(x - x.max(axis=1,keepdims=True)) \
-            / np.sum(np.exp(x-x.max(axis=1,keepdims=True)),axis=1,keepdims=True)
+        x = np.exp(x - x.max(axis=1, keepdims=True)) \
+            / np.sum(np.exp(x-x.max(axis=1, keepdims=True)), axis=1, keepdims=True)
         ### END YOUR CODE
     else:
         # Vector

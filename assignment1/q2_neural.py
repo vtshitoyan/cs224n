@@ -44,15 +44,15 @@ def forward_backward_prop(X, labels, params, dimensions):
     a2 = sigmoid(z2)  # (20, 5)
     z3 = a2.dot(W2) + b2  # (20, 10)
     a3 = softmax(z3)  # (20, 10)
-    cost = -np.sum(labels * np.log(a3))
+    cost = -np.sum(labels * np.log(a3))  # cross entropy cost
     ### END YOUR CODE
 
     ### YOUR CODE HERE: backward propagation
-    delta3 = a3 - labels  # 20, 10
-    gradb2 = np.sum(delta3, 0, keepdims=True)  # summing over training examples (1,  10)
-    gradW2 = np.dot(a2.T, delta3)
+    delta3 = a3 - labels  # 20, 10 - the derivative of cross entropy
+    gradb2 = np.sum(delta3, 0, keepdims=True)  # summing over training examples (1,  10), derivative over b is 1
+    gradW2 = np.dot(a2.T, delta3)  # works similar to the derivative with respect to input x or hidden layer h
 
-    delta2 = sigmoid_grad(a2) * np.dot(delta3, W2.T)
+    delta2 = sigmoid_grad(a2) * np.dot(delta3, W2.T)  # see assign1, 2(c)
     gradb1 = np.sum(delta2, 0, keepdims=True)
     gradW1 = np.dot(X.T, delta2)
     ### END YOUR CODE
